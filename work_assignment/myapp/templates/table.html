@@ -1,0 +1,41 @@
+{% load dict_extras %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Task Hours</title>
+  <style>
+    body { font-family: sans-serif; }
+    table { border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; }
+    th { background: #f2f2f2; text-align: center; }
+    td:first-child { text-align: left; }
+    td:not(:first-child) { text-align: right; }
+  </style>
+</head>
+<body>
+  <h1>Task Hours per Day</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        {% for day in date_cols %}
+          <th>{{ day }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.name }}</td>
+          {% for day in date_cols %}
+            <td>{{ row|get_item:day }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
