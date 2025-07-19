@@ -7,13 +7,23 @@ class Position(models.Model):
      
 class Worker(models.Model):
     name = models.CharField(max_length=100)
-    position = models.ForeignKey(Position, related_name='workers', on_delete=models.CASCADE)
+    position = models.ForeignKey(
+        Position,
+        related_name="workers",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+    )
     def __str__(self):
         return self.name
 
 class Task(models.Model):
-    position = models.ForeignKey(Position, related_name='tasks', on_delete=models.CASCADE)
-    date = models.DateField()
+    position = models.ForeignKey(
+        Position,
+        related_name="tasks",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+    )
+    date     = models.DateField()
     duration = models.IntegerField()
     def __str__(self):
         return f"{self.position.name} @ {self.date}"

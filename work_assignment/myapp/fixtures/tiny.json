@@ -1,0 +1,17 @@
+[
+  { "model": "myapp.position", "pk": 1, "fields": { "name": "Supervisor" } },
+
+  { "model": "myapp.worker", "pk": 1,
+    "fields": { "name": "Alice",  "position": 1 } },
+
+  { "model": "myapp.worker", "pk": 2,
+    "fields": { "name": "Bob",    "position": null } },
+
+  { "model": "myapp.task", "pk": 1,
+    "fields": { "position": 1, "date": "2000-01-11", "duration": 4 } },
+  { "model": "myapp.task", "pk": 2,
+    "fields": { "position": null, "date": "2000-01-12", "duration": 3 } },
+
+  { "model": "myapp.assignment", "pk": 1,
+    "fields": { "task": 1, "worker": 1 } }
+]

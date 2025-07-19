@@ -1,110 +1,169 @@
 """
 myapp/views.py
 
-Two endpoints:
-
-1. /api/table/   → pure JSON for programmatic or test use
-2. /table/       → nice HTML table for humans
-
-All heavy lifting (grouping, summing, zero‑filling) happens here so the
-frontend has nothing to do except render.
+WHAT THIS FILE DOES
+───────────────────
+1. Builds a summary table of task‑hours per day.
+2. Handles edge‑cases:
+      • Workers (and/or tasks) with *no* Position   → "(No Position)" group
+      • Tasks with *no* Assignment                 → "Unassigned" row
+3. Exposes the data in two flavours:
+      • /api/table/   → JSON (for tests / export)
+      • /table/       → HTML  (for humans)
 """
 
 from collections import OrderedDict
 from datetime import date
-from typing import List
+from typing import List, Dict
 
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
-from .models import Assignment, Position, Task
+from .models import Assignment, Position, Task, Worker
 
-# ── helpers ──────────────────────────────────────────────────────────────
+# ── Helpers ──────────────────────────────────────────────────────────────
+
 
 def fmt(d: date) -> str:
-    """2000‑01‑11 → '11 Jan'   (month name keeps things readable)"""
+    """Convert 2000‑01‑11 → '11 Jan' (short & human‑friendly)."""
     return d.strftime("%d %b")
 
-def all_dates() -> List[str]:
-    """
-    Grabs *every* distinct Task.date from the DB, oldest→newest,
-    then formats each with fmt().  Guarantees column order is stable.
-    """
-    return [fmt(d) for d in (
+
+def date_columns() -> List[str]:
+    """Return all distinct task dates (oldest → newest) already formatted."""
+    qs = (
         Task.objects.order_by("date")
         .values_list("date", flat=True)
         .distinct()
-    )]
+    )
+    return [fmt(d) for d in qs]
 
-def build_rows(date_cols: List[str]):
-    """
-    Core aggregation logic.
 
-    Returns a list:
-        [OrderedDict(position_row), OrderedDict(worker_row), …]
+def totals_for_position(pos: Position) -> Dict[str, int]:
+    """Sum duration of tasks belonging to *one* position, grouped by date."""
+    return {
+        fmt(r["date"]): r["total"]
+        for r in (
+            Task.objects.filter(position=pos)
+            .values("date")
+            .annotate(total=Sum("duration"))
+        )
+    }
 
-    Keys in each dict:
-        'name', then one key per date in date_cols
-    """
-    rows = []
 
-    for pos in Position.objects.order_by("id"):
+def totals_for_worker(w: Worker) -> Dict[str, int]:
+    """Sum duration of tasks assigned to *one* worker, grouped by date."""
+    return {
+        fmt(r["task__date"]): r["total"]
+        for r in (
+            Assignment.objects.filter(worker=w)
+            .values("task__date")
+            .annotate(total=Sum("task__duration"))
+        )
+    }
 
-        # --- position totals --------------------------------------------
-        p_totals = {
-            fmt(rec["date"]): rec["total"]
-            for rec in (
-                Task.objects
-                .filter(position=pos)
+
+def unassigned_task_totals() -> Dict[str, int]:
+    """Sum duration of tasks that have NO assignment."""
+    return {
+        fmt(r["date"]): r["total"]
+        for r in (
+            Task.objects.exclude(
+                id__in=Assignment.objects.values("task_id")
+            )
+            .values("date")
+            .annotate(total=Sum("duration"))
+        )
+    }
+
+
+# ── Core aggregation ─────────────────────────────────────────────────────
+
+
+def build_rows(cols: List[str]) -> List[OrderedDict]:
+    """Return one OrderedDict per table row (positions first, then workers)."""
+    rows: List[OrderedDict] = []
+
+    # 1. regular positions (those that actually have workers)
+    for pos in (
+        Position.objects.filter(workers__isnull=False)
+        .distinct()
+        .order_by("id")
+    ):
+        # --- position row ------------------------------------------------
+        p_row = OrderedDict(name=pos.name)
+        p_totals = totals_for_position(pos)
+        for d in cols:
+            p_row[d] = p_totals.get(d, 0)
+        rows.append(p_row)
+
+        # --- worker rows -------------------------------------------------
+        for w in pos.workers.order_by("id"):
+            w_row = OrderedDict(name=w.name)
+            w_totals = totals_for_worker(w)
+            for d in cols:
+                w_row[d] = w_totals.get(d, 0)
+            rows.append(w_row)
+
+    # 2. workers WITHOUT a position  → "(No Position)" pseudo‑group
+    no_pos_workers = Worker.objects.filter(position__isnull=True).order_by("id")
+    if no_pos_workers.exists():
+        # group row (tasks whose position is NULL)
+        group_row = OrderedDict(name="(No Position)")
+        group_totals = {
+            fmt(r["date"]): r["total"]
+            for r in (
+                Task.objects.filter(position__isnull=True)
                 .values("date")
                 .annotate(total=Sum("duration"))
             )
         }
-        pos_row = OrderedDict(name=pos.name)
-        for d in date_cols:
-            pos_row[d] = p_totals.get(d, 0)
-        rows.append(pos_row)
+        for d in cols:
+            group_row[d] = group_totals.get(d, 0)
+        rows.append(group_row)
 
-        # --- worker totals ----------------------------------------------
-        for w in pos.workers.order_by("id"):
-            w_totals = {
-                fmt(rec["task__date"]): rec["total"]
-                for rec in (
-                    Assignment.objects
-                    .filter(worker=w)
-                    .values("task__date")
-                    .annotate(total=Sum("task__duration"))
-                )
-            }
+        # individual worker rows
+        for w in no_pos_workers:
             w_row = OrderedDict(name=w.name)
-            for d in date_cols:
+            w_totals = totals_for_worker(w)
+            for d in cols:
                 w_row[d] = w_totals.get(d, 0)
             rows.append(w_row)
 
+    # 3. tasks WITHOUT an assignment  → "Unassigned" summary row
+    un_totals = unassigned_task_totals()
+    if un_totals:  # only include if such tasks exist
+        u_row = OrderedDict(name="Unassigned")
+        for d in cols:
+            u_row[d] = un_totals.get(d, 0)
+        rows.append(u_row)
+
     return rows
 
-# ── JSON endpoint ────────────────────────────────────────────────────────
+
+# ── Endpoints ────────────────────────────────────────────────────────────
+
 
 @require_GET
 def table_api(request):
-    """
-    /api/table/ → list‑of‑dicts JSON
-    Useful for tests, CSV export, or any machine consumer.
-    """
-    cols = all_dates()
-    rows = build_rows(cols)
-    return JsonResponse(rows, safe=False)
+    """/api/table/ → JSON list of dicts (easy for tests / exports)."""
+    cols = date_columns()
+    data = build_rows(cols)
+    return JsonResponse(data, safe=False)
 
-# ── HTML endpoint ────────────────────────────────────────────────────────
 
 @require_GET
 def table_page(request):
-    """
-    /table/ → rendered HTML (uses templates/table.html)
-    Handy for manual inspection in a browser.
-    """
-    cols = all_dates()
-    rows = build_rows(cols)
-    return render(request, "table.html", {"rows": rows, "date_cols": cols})
+    """/table/ → HTML table for quick human inspection."""
+    cols = date_columns()
+    data = build_rows(cols)
+    return render(
+        request,
+        "table.html",
+        {
+            "rows": data,
+            "date_cols": cols,
+        },
+    )
