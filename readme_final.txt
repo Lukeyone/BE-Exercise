@@ -88,12 +88,13 @@ and checks totals + row order.
 
 ---
 
-## Env vars (read by django‑environ)
+## Env var
 
 ```
-DB_NAME=be_exercise
-DB_USER=myuser
-DB_PASSWORD=mypass
-DB_HOST=localhost
-DB_PORT=5433
+'ENGINE': 'django.db.backends.postgresql',
+'NAME': 'mydatabase',
+'USER': 'myuser',
+'PASSWORD': 'mypassword',
+'HOST': 'localhost',
+'PORT': '5433',
 ```
