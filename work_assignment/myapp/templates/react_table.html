@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Task Hours – React demo</title>
+
+  <!-- React 18 (development builds) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Babel so we can write JSX inline in this demo ‑ remove for production -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <!-- Very light styling just to make the table readable -->
+  <style>
+    body { font-family: sans-serif; }
+
+    /* Keep borders tight and tidy */
+    table { border-collapse: collapse; margin-top: 1rem; }
+
+    /* Uniform cell padding/borders */
+    th, td { border: 1px solid #ccc; padding: 4px 8px; }
+
+    /* Header row background + centred text */
+    th { background: #f2f2f2; text-align: center; }
+
+    /* First column (names) should be left‑aligned */
+    td:first-child { text-align: left; }
+
+    /* All other numeric cells right‑align for easy scanning */
+    td:not(:first-child) { text-align: right; }
+  </style>
+</head>
+<body>
+  <h1>Task Hours per Day (React)</h1>
+
+  <!-- React will mount into this div -->
+  <div id="root"></div>
+
+  <!-- Inline JSX (Babel transpiles it in‑browser) -->
+  <script type="text/babel">
+    function App() {
+      /* rows = API data | cols = dynamic date columns */
+      const [rows, setRows] = React.useState([]);
+      const [cols, setCols] = React.useState([]);
+
+      /* One‑off fetch on component mount */
+      React.useEffect(() => {
+        fetch("/api/table/")              // ← your Django JSON endpoint
+          .then(r => r.json())
+          .then(data => {
+            if (data.length) {
+              setRows(data);
+              /* Assume every row has identical keys; drop "name" */
+              setCols(Object.keys(data[0]).filter(k => k !== "name"));
+            }
+          })
+          .catch(console.error);          // Cheap error logging
+      }, []);
+
+      /* Simple loading state */
+      if (!rows.length) return <p>Loading…</p>;
+
+      /* Render table once data is in */
+      return (
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              {/* Render dynamic date columns */}
+              {cols.map(c => <th key={c}>{c}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i}>
+                {/* First cell = position/worker name */}
+                <td>{row.name}</td>
+
+                {/* Remaining cells = hours per day */}
+                {cols.map(c => <td key={c}>{row[c]}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    /* Kick off React */
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

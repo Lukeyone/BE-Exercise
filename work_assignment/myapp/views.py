@@ -23,6 +23,18 @@ from django.views.decorators.http import require_GET
 
 from .models import Assignment, Position, Task, Worker
 
+from rest_framework.views import APIView          
+from rest_framework.response import Response
+
+class TableAPI(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        cols = date_columns()
+        data = build_rows(cols)
+        return Response(data)
+
 # ── Helpers ──────────────────────────────────────────────────────────────
 
 

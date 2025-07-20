@@ -56,7 +56,7 @@ class Command(BaseCommand):
 
                 tasks = (
                     Task.objects.filter(date=dt, position=pos)
-                    .order_by("-duration")  # big tasks first
+                    .order_by("-duration")  # sort by longest duration first
                 )
 
                 for task in tasks:
