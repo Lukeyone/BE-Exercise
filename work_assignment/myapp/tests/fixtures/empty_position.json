@@ -1,0 +1,7 @@
+[
+  { "model": "myapp.worker", "pk": 900, "fields": { "name": "No‑Pos Worker A", "position": null } },
+  { "model": "myapp.worker", "pk": 901, "fields": { "name": "No‑Pos Worker B", "position": null } },
+
+  { "model": "myapp.task", "pk": 910, "fields": { "position": null, "duration": 2, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 911, "fields": { "position": null, "duration": 4, "date": "2025-01-12" } }
+]

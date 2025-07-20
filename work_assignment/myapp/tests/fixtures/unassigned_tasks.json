@@ -1,0 +1,20 @@
+[
+  { "model": "myapp.position", "pk": 1, "fields": { "name": "Analyst" } },
+  { "model": "myapp.position", "pk": 2, "fields": { "name": "Developer" } },
+
+  { "model": "myapp.worker", "pk": 10, "fields": { "name": "Alice", "position": 1 } },
+  { "model": "myapp.worker", "pk": 11, "fields": { "name": "Bob",   "position": 2 } },
+
+  { "model": "myapp.task", "pk": 200, "fields": { "position": 1, "duration": 3, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 201, "fields": { "position": 1, "duration": 2, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 202, "fields": { "position": 2, "duration": 5, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 203, "fields": { "position": 2, "duration": 1, "date": "2025-01-11" } },
+
+  { "model": "myapp.task", "pk": 204, "fields": { "position": 1, "duration": 4, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 205, "fields": { "position": 1, "duration": 3, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 206, "fields": { "position": 2, "duration": 2, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 207, "fields": { "position": 2, "duration": 6, "date": "2025-01-12" } },
+
+  { "model": "myapp.task", "pk": 208, "fields": { "position": 1, "duration": 1, "date": "2025-01-13" } },
+  { "model": "myapp.task", "pk": 209, "fields": { "position": 2, "duration": 2, "date": "2025-01-13" } }
+]

@@ -1,0 +1,43 @@
+[
+  { "model": "myapp.position", "pk": 1, "fields": { "name": "Analyst" } },
+  { "model": "myapp.position", "pk": 2, "fields": { "name": "Developer" } },
+  { "model": "myapp.position", "pk": 3, "fields": { "name": "QA" } },
+
+  { "model": "myapp.worker", "pk": 101, "fields": { "name": "W‑A1", "position": 1 } },
+  { "model": "myapp.worker", "pk": 102, "fields": { "name": "W‑A2", "position": 1 } },
+  { "model": "myapp.worker", "pk": 201, "fields": { "name": "W‑D1", "position": 2 } },
+  { "model": "myapp.worker", "pk": 202, "fields": { "name": "W‑D2", "position": 2 } },
+  { "model": "myapp.worker", "pk": 301, "fields": { "name": "W‑Q1", "position": 3 } },
+  { "model": "myapp.worker", "pk": 302, "fields": { "name": "W‑Q2", "position": 3 } },
+
+  { "model": "myapp.task", "pk": 1001, "fields": { "position": 1, "duration": 4, "date": "2025-01-10" } },
+  { "model": "myapp.task", "pk": 1002, "fields": { "position": 1, "duration": 3, "date": "2025-01-10" } },
+  { "model": "myapp.task", "pk": 1003, "fields": { "position": 2, "duration": 2, "date": "2025-01-10" } },
+  { "model": "myapp.task", "pk": 1004, "fields": { "position": 2, "duration": 4, "date": "2025-01-10" } },
+  { "model": "myapp.task", "pk": 1005, "fields": { "position": 3, "duration": 1, "date": "2025-01-10" } },
+  { "model": "myapp.task", "pk": 1006, "fields": { "position": 3, "duration": 2, "date": "2025-01-10" } },
+
+  { "model": "myapp.task", "pk": 1101, "fields": { "position": 1, "duration": 2, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1102, "fields": { "position": 1, "duration": 4, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1103, "fields": { "position": 1, "duration": 3, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1104, "fields": { "position": 2, "duration": 4, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1105, "fields": { "position": 2, "duration": 3, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1106, "fields": { "position": 2, "duration": 2, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1107, "fields": { "position": 3, "duration": 1, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1108, "fields": { "position": 3, "duration": 4, "date": "2025-01-11" } },
+  { "model": "myapp.task", "pk": 1109, "fields": { "position": 3, "duration": 2, "date": "2025-01-11" } },
+
+  { "model": "myapp.task", "pk": 1201, "fields": { "position": 1, "duration": 1, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1202, "fields": { "position": 1, "duration": 4, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1203, "fields": { "position": 1, "duration": 3, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1204, "fields": { "position": 1, "duration": 2, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1205, "fields": { "position": 2, "duration": 4, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1206, "fields": { "position": 2, "duration": 1, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1207, "fields": { "position": 2, "duration": 3, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1208, "fields": { "position": 3, "duration": 2, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1209, "fields": { "position": 3, "duration": 2, "date": "2025-01-12" } },
+  { "model": "myapp.task", "pk": 1210, "fields": { "position": 3, "duration": 3, "date": "2025-01-12" } },
+
+  { "model": "myapp.assignment", "pk": 1, "fields": { "task": 1001, "worker": 101 } },
+  { "model": "myapp.assignment", "pk": 2, "fields": { "task": 1003, "worker": 201 } }
+]
