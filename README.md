@@ -1,4 +1,3 @@
-
 # Back End Developer Exercise
 
 A simple Django application that demonstrates data manipulation and database performance by managing task assignments for workers.
